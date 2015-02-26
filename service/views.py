@@ -9,7 +9,7 @@ def index (request):
 def compae (request):
     return HttpResponse ("La vin, compae")
     
-def registro (request, fulanito):
+def registro_ (request, fulanito):
     return HttpResponse ("Queda usted registrado, %s" % fulanito)
     
 def registropro (request, suco):
@@ -29,3 +29,9 @@ def login (request):
         'user':'',
     }
     return render (request, 'login.html', context)
+    
+def registro (request):
+    context = {
+        'user':'',
+    }
+    return render (request, 'registro.html', context)
