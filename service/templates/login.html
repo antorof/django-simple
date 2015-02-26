@@ -1,11 +1,12 @@
 {% extends "base-out.html" %}
 {% block content %}
     <div class="container">
-      <form class="form-signin">
+      <!--<form class="form-signin" action="{% url 'login' %}" method="post"> {% csrf_token %}
         <h2 class="form-signin-heading">Iniciar sesi&oacute;n</h2>
         
-        <label for="email" class="sr-only">Nombre de usuario</label>
-        <input type="email" id="email" class="form-control" placeholder="Nombre de usuario" required autofocus>
+        <label for="username" class="sr-only">Nombre de usuario</label>
+        <input type="text" id="username" class="form-control" placeholder="Nombre de usuario" required autofocus>
+        
         <label for="password" class="sr-only">Contrase&ntilde;a</label>
         <input type="password" id="password" class="form-control" placeholder="Contrase&ntilde;a" required>
         
@@ -16,6 +17,15 @@
             <a class="btn btn-lg btn-link" href="../registro">Registrarse</a>
         </div>
     
+      </form>-->
+      <form action="{% url 'login' %}" method="post">{% csrf_token %}
+        <table class="form">
+        {{ form.as_table }}
+        </table>
+        <div class="form_mensaje">
+        {{ mensaje }}
+        </div>
+        <input class="form_boton" value="Login" type="submit" align="middle">
       </form>
     </div>
 {% endblock %}

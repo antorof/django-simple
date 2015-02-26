@@ -6,5 +6,15 @@
 <body>
 
 Hola <b>{{ fulanito }}</b>
+{% if user %}
+<p>Usuario actual: {{ user }}</p>
+{% elif user == 'disabled' %}
+<p>ERROR: disabled</p>
+{% else %}
+<p>No ha iniciado sesi&oacute;n</p>
+{% endif %}
+
+<p>username: {{ username }}
+<p>password: {{ password }}
 </body>
 </html>
