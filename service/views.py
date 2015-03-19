@@ -19,7 +19,7 @@ class registroForm(forms.Form):
     username = forms.CharField(label='', max_length = 10, required = True, widget=forms.TextInput(attrs={'class' : 'form-control','placeholder':'Nombre de usuario'}))
     password = forms.CharField(label='', required = True, widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Contraseña'}),)
     password2 = forms.CharField(label='', required = True, widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Repita su contraseña'}),)
-    email = forms.EmailField(label='', required = False, widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Correo electrónico'}))
+    email = forms.EmailField(label='', required = False, widget = forms.EmailInput(attrs={'class' : 'form-control','placeholder':'Correo electrónico'}))
     
     def faltanCampos(self):
         cleaned_data = super(registroForm, self).clean()
