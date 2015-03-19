@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 from django import forms
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.core.validators import validate_slug, RegexValidator
@@ -40,14 +40,18 @@ class registroForm(forms.Form):
         pw = cleaned_data.get("password")
         pw2 = cleaned_data.get("password2")
         if pw != pw2:
-            raise forms.ValidationError("") # No le pongo nada para poder luego ajustar en el cliente
+            raise forms.ValidationError("") # No le pongo nada para no mostrar texto en el cliente
 
 
 def index (request):
     return render (request, 'index.html')
     
+def cerrarSesion (request):    
+    logout(request)
+    return HttpResponseRedirect('../login')
+
 def login (request):
-    # Si viene del POST del boton de submit
+    # Si viene del POST
     if request.method == 'POST':
         form = loginForm (request.POST)
         # Si el formulario es valido se comprueban los credenciales
@@ -73,13 +77,17 @@ def login (request):
                 return render(request, 'login.html', context)
     # Si es la primera vez que se llama (GET)
     else:
-        fulanito = 'default'
-        form = loginForm()
-        context = {
-        'mensaje':'',
-        'form':form,
-        }
-        return render(request, 'login.html', context)
+        # Si usuario tiene iniciada la sesión redirijo
+        if request.user.is_authenticated() :
+            return HttpResponseRedirect('../bienvenida')
+        # Si no, le muestro el formulario de login
+        else :
+            form = loginForm()
+            context = {
+                'mensaje':'',
+                'form':form,
+            }
+            return render(request, 'login.html', context)
 
 def registro (request):
     if request.method == 'POST':
@@ -87,11 +95,11 @@ def registro (request):
         if form.is_valid ():
             try:
                 User.objects.create(username = form.cleaned_data['username'],
-                    email = form.cleaned_data['email'],
-                    password = form.cleaned_data['password'])
+                                    email = form.cleaned_data['email'],
+                                    password = form.cleaned_data['password'])
             except Exception as error:
                 context = {
-                    'username':'error',
+                    'username':None,
                     'form':form,
                     'mensaje':'Ese usuario ya existe.',
                 }
@@ -106,19 +114,19 @@ def registro (request):
         else:
             if form.faltanCampos():
                 context = {
-                    'username': 'error',
+                    'username': None,
                     'form':form,
                     'mensaje':'Revise los campos a rellenar.',
                 }
             elif form.contraseniasDistintas():
                 context = {
-                    'username': 'error',
+                    'username': None,
                     'form':form,
                     'mensaje':'Las contraseñas introducidas son distintas.',
                 }
             else:
                 context = {
-                    'username': 'error',
+                    'username': None,
                     'form':form,
                     'mensaje':'Error desconocido.',
                 }

@@ -10,6 +10,11 @@ urlpatterns = patterns ('',
     
     url(r'^registro/$', views.registro, name='registro'),
     url(r'^registro-avanzado/$', views.registro, name='registro'),
+    
     url(r'^login/$', views.login, name='login'),
+    
     url(r'^bienvenida/$', views.index, name='bienvenida'),
+    
+    url(r'^logout/$', views.cerrarSesion, name='logout'),
+    url(r'^cerrar-sesion/$', views.cerrarSesion, name='cerrar-sesion'),
 )
