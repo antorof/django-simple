@@ -8,50 +8,43 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 import sys
 
-class NameForm(forms.Form):
-    your_name = forms.CharField(label='name', max_length=100)
-
 class loginForm(forms.Form):
-    username = forms.CharField (label = 'Nombre de usuario',max_length = 10,required = True,)
-    password = forms.CharField( label = 'Contraseña',required = True,widget = forms.PasswordInput,)
+    username = forms.CharField(label = '',max_length = 10,required = True, widget=forms.TextInput(attrs={'class' : 'form-control','placeholder':'Nombre de usuario'}))
+    password = forms.CharField(label = '',required = True,widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Contraseña'}),)
     
     def clean (self):
         cleaned_data = super(loginForm, self).clean()
 
 class registroForm(forms.Form):
-    username = forms.CharField(label = 'Nombre', max_length = 10, required = True,)
-    password = forms.CharField(label = 'Contrasena', required = True, widget = forms.PasswordInput,)
-    password2 = forms.CharField(label = 'Repita su contrasena', required = True, widget = forms.PasswordInput,)
-    email = forms.EmailField(label = 'Correo electronico')
+    username = forms.CharField(label='', max_length = 10, required = True, widget=forms.TextInput(attrs={'class' : 'form-control','placeholder':'Nombre de usuario'}))
+    password = forms.CharField(label='', required = True, widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Contraseña'}),)
+    password2 = forms.CharField(label='', required = True, widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Repita su contraseña'}),)
+    email = forms.EmailField(label='', required = False, widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Correo electrónico'}))
+    
+    def faltanCampos(self):
+        cleaned_data = super(registroForm, self).clean()
+        un = cleaned_data.get("username")
+        pw = cleaned_data.get("password")
+        pw2 = cleaned_data.get("password2")
+        return un == None or pw == None or pw2 == None
+    
+    def contraseniasDistintas(self):
+        cleaned_data = super(registroForm, self).clean()
+        pw = cleaned_data.get("password")
+        pw2 = cleaned_data.get("password2")
+        if pw != pw2:
+            return True 
     
     def clean (self):
         cleaned_data = super(registroForm, self).clean()
-        password = cleaned_data.get("pw")
-        password2 = cleaned_data.get("pw_again")
-        if password != password2:
-            raise forms.ValidationError ('las contrasenas no coinciden')
+        pw = cleaned_data.get("password")
+        pw2 = cleaned_data.get("password2")
+        if pw != pw2:
+            raise forms.ValidationError("") # No le pongo nada para poder luego ajustar en el cliente
 
 
 def index (request):
     return render (request, 'index.html')
-    
-def compae (request):
-    return HttpResponse ("La vin, compae")
-    
-def registro_ (request, fulanito):
-    return HttpResponse ("Queda usted registrado, %s" % fulanito)
-    
-def registropro (request, suco):
-    context = {
-        'fulanito':suco,
-    }
-    return render (request, 'index.html', context)
-    
-def heredado (request):
-    context = {
-        'fulanito':'',
-    }
-    return render (request, 'heredado.html', context)
     
 def login (request):
     # Si viene del POST del boton de submit
@@ -87,14 +80,8 @@ def login (request):
         'form':form,
         }
         return render(request, 'login.html', context)
-    
-def registro (request):
-    context = {
-        'user':'',
-    }
-    return render (request, 'registro.html', context)
 
-def registroAvanzado (request):
+def registro (request):
     if request.method == 'POST':
         form = registroForm (request.POST)
         if form.is_valid ():
@@ -106,21 +93,35 @@ def registroAvanzado (request):
                 context = {
                     'username':'error',
                     'form':form,
-                    'mensaje':'Ese usuario ya existe',
+                    'mensaje':'Ese usuario ya existe.',
                 }
                 return render (request, 'registro-avanzado.html', context)
                 
             context = {
                 'username':form.cleaned_data['username'],
-                'form':form,
+                'form':loginForm(),
+                'mensaje':'Usuario creado con éxito. Inicie sesión.',
             }
             return render (request, 'login.html', context)
         else:
-            context = {
-                'username': 'error',
-                'form':form,
-                'mensaje':'EEERRRRRROOOOOOOOOOORR',
-            }
+            if form.faltanCampos():
+                context = {
+                    'username': 'error',
+                    'form':form,
+                    'mensaje':'Revise los campos a rellenar.',
+                }
+            elif form.contraseniasDistintas():
+                context = {
+                    'username': 'error',
+                    'form':form,
+                    'mensaje':'Las contraseñas introducidas son distintas.',
+                }
+            else:
+                context = {
+                    'username': 'error',
+                    'form':form,
+                    'mensaje':'Error desconocido.',
+                }
             return render (request, 'registro-avanzado.html', context)
     else:
         username = 'default'
