@@ -6,8 +6,6 @@ from django.http import HttpResponse
 from django.core.validators import validate_slug, RegexValidator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.contrib.auth import get_user_model
-import sys
 
 class loginForm(forms.Form):
     username = forms.CharField(label = '',max_length = 10,required = True, widget=forms.TextInput(attrs={'class' : 'form-control','placeholder':'Nombre de usuario'}))
@@ -94,7 +92,7 @@ def iniciarSesion (request):
     else:
         # Si usuario tiene iniciada la sesión redirijo
         if request.user.is_authenticated() :
-            return HttpResponseRedirect('../bienvenida')
+            return redirect('inicio')
         # Si no, le muestro el formulario de login
         else :
             form = loginForm()
@@ -120,7 +118,7 @@ def registro (request):
                     'form':form,
                     'mensaje':'Ese usuario ya existe.',
                 }
-                return render (request, 'registro-avanzado.html', context)
+                return render (request, 'registro.html', context)
                 
             context = {
                 'username':form.cleaned_data['username'],
@@ -147,7 +145,7 @@ def registro (request):
                     'form':form,
                     'mensaje':'Error desconocido.',
                 }
-            return render (request, 'registro-avanzado.html', context)
+            return render (request, 'registro.html', context)
     else:
         username = 'default'
         form = registroForm()
@@ -155,4 +153,4 @@ def registro (request):
             'username':username,
             'form':form,
         }
-        return render(request, 'registro-avanzado.html', context)
+        return render(request, 'registro.html', context)

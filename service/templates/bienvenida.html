@@ -2,5 +2,14 @@
 {% block content %}
 <div class="container">
   <h1>Bienvenido, <strong>{{user.username}}</strong></h1>
+  <h3>Tus datos son los siguientes:</h3>
+  <ul>
+    <li>Nombre de usuario: <strong>{{user.username}}</strong></li>
+    {% if user.email %}
+    <li>Email: <strong>{{user.email}}</strong></li>
+    {% endif %}
+    <li>&Uacute;ltimo inicio de sesi&oacute;n: <strong>{{user.last_login}}</strong></li>
+    <li>Fecha de creaci&oacute;n: <strong>{{user.date_joined}}</strong></li>
+  </ul>
 </div>
 {% endblock %}
