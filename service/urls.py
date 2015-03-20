@@ -17,4 +17,6 @@ urlpatterns = patterns ('',
     
     url(r'^logout/$', views.cerrarSesion, name='logout'),
     url(r'^cerrar-sesion/$', views.cerrarSesion, name='cerrar-sesion'),
+    
+    url(r'^geo-etsiit/$', views.geoETSIIT, name='geoetsiit'),
 )

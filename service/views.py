@@ -199,3 +199,8 @@ def registro (request):
             'form':form,
         }
         return render(request, 'registro.html', context)
+
+def geoETSIIT (request):
+    context = {
+    }
+    return render(request, 'geo-etsiit.html', context)
