@@ -28,8 +28,11 @@ body {
 .form-signin .form-control:focus {
   z-index: 2;
 }
+.form-signin input[name="password2"] {
+  margin-bottom: 20px;
+}
 .form-signin input[type="email"] {
-  /*margin-bottom: -1px;*/
+  margin-bottom: 20px;
   /*border-bottom-right-radius: 0;*/
   /*border-bottom-left-radius: 0;*/
 }

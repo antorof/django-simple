@@ -8,17 +8,62 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 
 class loginForm(forms.Form):
-    username = forms.CharField(label = '',max_length = 10,required = True, widget=forms.TextInput(attrs={'class' : 'form-control','placeholder':'Nombre de usuario'}))
-    password = forms.CharField(label = '',required = True,widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Contraseña'}),)
+    username = forms.CharField(
+        label = '',
+        max_length = 10,
+        required = True, 
+        widget=forms.TextInput(attrs={'class' : 'form-control','placeholder':'Nombre de usuario'}))
+    
+    password = forms.CharField(
+        label = '',
+        required = True,
+        widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Contraseña'}),)
     
     def clean (self):
         cleaned_data = super(loginForm, self).clean()
 
 class registroForm(forms.Form):
-    username = forms.CharField(label='', max_length = 10, required = True, widget=forms.TextInput(attrs={'class' : 'form-control','placeholder':'Nombre de usuario'}))
-    password1 = forms.CharField(label='', required = True, widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Contraseña'}),)
-    password2 = forms.CharField(label='', required = True, widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Repita su contraseña'}),)
-    email = forms.EmailField(label='', required = False, widget = forms.EmailInput(attrs={'class' : 'form-control','placeholder':'Correo electrónico'}))
+    username = forms.CharField(
+        label='', 
+        max_length = 10, 
+        required = True, 
+        widget=forms.TextInput(attrs={'class' : 'form-control','placeholder':'Nombre de usuario'}))
+    
+    password1 = forms.CharField(
+        label='', 
+        required = True, 
+        widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Contraseña'}),)
+        
+    password2 = forms.CharField(
+        label='', 
+        required = True, 
+        widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Repita su contraseña'}),)
+    
+    email = forms.EmailField(
+        label='', 
+        required = False, 
+        widget = forms.EmailInput(attrs={'class' : 'form-control','placeholder':'Correo electrónico'}))
+    
+    credit = forms.CharField(
+        label='',
+        required = False,
+        max_length=16,
+        validators=[RegexValidator(r'^[0-9]{16}$','Son necesarios 16 dígitos','numero_invalido'),], 
+        widget = forms.TextInput(attrs={'class' : 'form-control','placeholder':'Tarjeta de crédito'}))
+    
+    anio_expiracion = forms.CharField(
+        label='',
+        required = False,
+        max_length=4,
+        validators=[RegexValidator(r'^[0-9]{4}$','Son necesarios 4 dígitos','anio_invalido'),],
+        widget = forms.NumberInput(attrs={'class' : 'form-control','placeholder':'Año de expiración', 'min':'2000', 'max':'2100'}))
+    
+    mes_credito = forms.CharField(
+        label='',
+        required = False,
+        max_length=2,
+        validators=[RegexValidator(r'^[0-9]{1,2}$','Introduzca el número del mes','mes_invalido'),],
+        widget = forms.NumberInput(attrs={'class' : 'form-control','placeholder':'Mes de expiración', 'min':'1', 'max':'2100'}))
     
     def faltanCampos(self):
         cleaned_data = super(registroForm, self).clean()
