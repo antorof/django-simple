@@ -9,6 +9,8 @@ from django.contrib.auth.models import User
 from lxml import etree
 import requests
 from pymongo import MongoClient
+from django.http import JsonResponse
+from unidecode import unidecode
 
 class loginForm(forms.Form):
     username = forms.CharField(
@@ -280,42 +282,77 @@ def crawler (request):
     client = MongoClient()
     db = client.db_ssbw
     noticias_tb = db.noticias
-    noticias_tb.remove()
     
-    URL_ELPAIS = 'http://servicios.elpais.com/rss/'
-    BASE_URL = 'http://ep00.epimg.net/rss/tecnologia/portada.xml'
-    NOMBRE_URL = 'RSS de Tecnología'
-    
+    NOMBRE = "Servicio de búsqueda"
     result = ""
     
-    tree = etree.parse(BASE_URL)
-    
-    # items = tree.xpath('//item/title | //item/link | //item/category')
-    items = tree.xpath('//item')
-    
-    # print (">" + str(len(items)))
-    for i in items:
-        title = i.xpath('title')[0].text
-        link = i.xpath('link')[0].text
-        categorias = []
-        for j in i.xpath('category'):
-            categorias.append(j.text)
+    if request.method == 'POST':
+        categoria = request.POST.get("keyword", "")
+        noticias = noticias_tb.find({"categorias_clean":{ "$regex": unidecode(categoria), "$options":"i" }})
         
-        result += "<div class='col-xs-6 col-sm-4 col-md-3'><div class='panel panel-default'><div class='panel-body'>"
-        result += '<h4>' + title + '</h4>'
-        result += '<a href="' + link + '" target="_blank">Enlace</a>'
-        result += "<br/>"
-        for k in categorias:
-            result += "<span class='label label-info'>" + k + "</span><br/>"
-        result += "</div></div></div>"
+        # print("post:"+categoria)
+        # print(unidecode(categoria))
+        # print("count:"+str(noticias.count()))
         
-        unItem = {"titulo":title,"link":link,"categorias":categorias}
-        noticias_tb.insert(unItem)
+        for i in noticias:
+            title = i["titulo"]
+            link = i["link"]
+            categorias = i["categorias"]
+            categorias_clean = i["categorias_clean"]
+            
+            result += "<div class='col-xs-6 col-sm-4 col-md-3'><div class='panel panel-default'><div class='panel-body'>"
+            result += '<h4>' + title + '</h4>'
+            result += '<p><a href="' + link + '" target="_blank">Enlace</a></p>'
+            
+            for k in range(len(categorias)):
+                if str.lower(unidecode(categoria)) == categorias_clean[k]:
+                    result += "<span class='label label-success'>" + categorias[k] + "</span><br/>"
+                elif str.lower(unidecode(categoria)) in categorias_clean[k]:
+                    result += "<span class='label label-primary'>" + categorias[k] + "</span><br/>"
+                else:
+                    result += "<span class='label label-info'>" + categorias[k] + "</span><br/>"
+            result += "</div></div></div>"
         
+        context = {
+            'nombre':NOMBRE,
+            'url':"",
+            'contenido':result,
+            'cabecera':'Resultados de la búsqueda',
+            'keyword':categoria,
+            'POST':True
+        }
+        return render(request, 'crawler.html', context)
     
-    context = {
-        'nombre_url':NOMBRE_URL,
-        'url':BASE_URL,
-        'form':result,
-    }
-    return render(request, 'crawler.html', context)
+    else:
+        noticias_tb.remove()
+        
+        URL_ELPAIS = 'http://servicios.elpais.com/rss/'
+        BASE_URL = 'http://ep00.epimg.net/rss/tecnologia/portada.xml'
+        
+        tree = etree.parse(BASE_URL)
+        
+        items = tree.xpath('//item')
+        
+        # print (">" + str(len(items)))
+        for i in items:
+            title = i.xpath('title')[0].text
+            link = i.xpath('link')[0].text
+            categorias = []
+            categorias_clean = []
+            for j in i.xpath('category'):
+                categorias.append(j.text)
+                categorias_clean.append(str.lower(unidecode(j.text)))
+            
+            unItem = {"titulo":title,"link":link,"categorias":categorias,"categorias_clean":categorias_clean}
+            noticias_tb.insert(unItem)
+            
+        result += "<p class='text-muted'>Escriba una categoría en el cuadro de búsqueda para realizar una consulta.</p>"
+        
+        context = {
+            'nombre':NOMBRE,
+            'url':BASE_URL,
+            'contenido':result,
+            'cabecera':'Bienvenido al servicio de búsqueda de noticias',
+            'POST':False
+        }
+        return render(request, 'crawler.html', context)
