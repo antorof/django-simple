@@ -1,0 +1,17 @@
+{% extends "base-out.html" %}
+{% block content %}
+    <div class="container">
+        <h2 class="form-signin-heading">{{ nombre_url }}</h2>
+        
+        <div class="form-group">
+            <blockquote>
+            <p>URL:&nbsp; <a href={{ url }} target="_blank">{{ url }}</a></p>
+            <small>{{ nombre_url }} de <cite title="Source Title">El Pa&iacute;s</cite></small>
+            </blockquote>
+        </div>
+        
+        <div class="form-group">
+          {{ form|safe }}
+        </div>
+    </div>
+{% endblock %}

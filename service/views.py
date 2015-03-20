@@ -244,3 +244,32 @@ def geoETSIIT (request):
         'form':result,
     }
     return render(request, 'geo-etsiit.html', context)
+    
+def elpais (request):
+    # BASE_URL = 'http://ep00.epimg.net/rss/elpais/portada.xml'
+    BASE_URL = 'http://ep00.epimg.net/rss/tecnologia/portada.xml'
+    NOMBRE_URL = 'RSS de Tecnología'
+    
+    result = ""
+    
+    tree = etree.parse(BASE_URL)
+    
+    # result += "<ul>"
+    images = tree.xpath('//enclosure/@url')
+    
+    for i in images:
+        # print (">" + i)
+        result += "<div class='col-xs-6 col-sm-4 col-md-3'>"
+        result += '<a href="' + i + '" target="_blank">'
+        result += '<img class="img-responsive" src="'+ i +'" alt="">'
+        result += "</a>"
+        result += "</div>"
+    
+    # result += "</ul>"
+    
+    context = {
+        'nombre_url':NOMBRE_URL,
+        'url':BASE_URL,
+        'form':result,
+    }
+    return render(request, 'elpais.html', context)
