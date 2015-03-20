@@ -1,4 +1,6 @@
-{% extends "base-out.html" %}
+{% extends "base.html" %}
 {% block content %}
-Bienvenido a la web, <strong>{{ username }}</strong>
+<div class="container">
+  <h1>Bienvenido, <strong>{{user.username}}</strong></h1>
+</div>
 {% endblock %}

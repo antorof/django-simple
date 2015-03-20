@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.core.validators import validate_slug, RegexValidator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 import sys
 
 class loginForm(forms.Form):
@@ -17,40 +18,56 @@ class loginForm(forms.Form):
 
 class registroForm(forms.Form):
     username = forms.CharField(label='', max_length = 10, required = True, widget=forms.TextInput(attrs={'class' : 'form-control','placeholder':'Nombre de usuario'}))
-    password = forms.CharField(label='', required = True, widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Contraseña'}),)
+    password1 = forms.CharField(label='', required = True, widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Contraseña'}),)
     password2 = forms.CharField(label='', required = True, widget = forms.PasswordInput(attrs={'class' : 'form-control','placeholder':'Repita su contraseña'}),)
     email = forms.EmailField(label='', required = False, widget = forms.EmailInput(attrs={'class' : 'form-control','placeholder':'Correo electrónico'}))
     
     def faltanCampos(self):
         cleaned_data = super(registroForm, self).clean()
         un = cleaned_data.get("username")
-        pw = cleaned_data.get("password")
+        pw = cleaned_data.get("password1")
         pw2 = cleaned_data.get("password2")
         return un == None or pw == None or pw2 == None
     
     def contraseniasDistintas(self):
         cleaned_data = super(registroForm, self).clean()
-        pw = cleaned_data.get("password")
+        pw = cleaned_data.get("password1")
         pw2 = cleaned_data.get("password2")
         if pw != pw2:
             return True 
     
     def clean (self):
         cleaned_data = super(registroForm, self).clean()
-        pw = cleaned_data.get("password")
+        pw = cleaned_data.get("password1")
         pw2 = cleaned_data.get("password2")
         if pw != pw2:
             raise forms.ValidationError("") # No le pongo nada para no mostrar texto en el cliente
 
 
 def index (request):
-    return render (request, 'index.html')
-    
-def cerrarSesion (request):    
-    logout(request)
-    return HttpResponseRedirect('../login')
+    return redirect('inicio')
 
-def login (request):
+def inicio (request):
+    'Renderiza la página principal'
+    # Si usuario tiene iniciada la sesión lo dejo continuar
+    if request.user.is_authenticated() :
+        return render (request, 'bienvenida.html')
+    else :
+        context = {
+            # 'username':None,
+            'form':loginForm(),
+            'mensaje':'Inicie sesión para continuar.',
+        }
+        return render (request, 'login.html', context)
+    
+
+def cerrarSesion (request):
+    'Cierra la sesión del usuario si hubiera una sesión abierta'
+    logout(request)
+    return redirect('login')
+
+def iniciarSesion (request):
+    'Realiza el inicio de sesión de un usuario o devuelve la página de login'
     # Si viene del POST
     if request.method == 'POST':
         form = loginForm (request.POST)
@@ -59,10 +76,8 @@ def login (request):
             user = authenticate(username = form.cleaned_data['username'],password = form.cleaned_data['password'])
             if user is not None:
                 if user.is_active:
-                    context = {
-                        'username':form.cleaned_data['username'],
-                    }
-                    return render(request, 'bienvenida.html', context)
+                    login(request, user)
+                    return redirect('inicio')
                 else:
                     context = {
                         'mensaje':'Usuario no activo',
@@ -90,14 +105,16 @@ def login (request):
             return render(request, 'login.html', context)
 
 def registro (request):
+    'Realiza el registro de un usuario o devuelve la página de registro'
     if request.method == 'POST':
         form = registroForm (request.POST)
         if form.is_valid ():
             try:
-                User.objects.create(username = form.cleaned_data['username'],
+                User.objects.create_user(username = form.cleaned_data['username'],
                                     email = form.cleaned_data['email'],
-                                    password = form.cleaned_data['password'])
+                                    password = form.cleaned_data['password1'])
             except Exception as error:
+                print error
                 context = {
                     'username':None,
                     'form':form,
