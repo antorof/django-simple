@@ -21,4 +21,8 @@ urlpatterns = patterns ('',
     url(r'^geo-etsiit/$', views.geoETSIIT, name='geoetsiit'),
     
     url(r'^elpais/$', views.elpais, name='elpais'),
+    
+    url(r'^crawler/$', views.crawler, name='crawler'),
+    
+    
 )

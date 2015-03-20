@@ -7,6 +7,8 @@ from django.core.validators import validate_slug, RegexValidator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from lxml import etree
+import requests
+from pymongo import MongoClient
 
 class loginForm(forms.Form):
     username = forms.CharField(
@@ -273,3 +275,49 @@ def elpais (request):
         'form':result,
     }
     return render(request, 'elpais.html', context)
+    
+def crawler (request):
+    client = MongoClient()
+    db = client.db_ssbw
+    noticias_tb = db.noticias
+    noticias_tb.remove()
+    
+    URL_ELPAIS = 'http://servicios.elpais.com/rss/'
+    BASE_URL = 'http://ep00.epimg.net/rss/tecnologia/portada.xml'
+    NOMBRE_URL = 'RSS de Tecnología'
+    
+    result = ""
+    
+    tree = etree.parse(BASE_URL)
+    
+    # items = tree.xpath('//item/title | //item/link | //item/category')
+    items = tree.xpath('//item')
+    
+    print (">" + str(len(items)))
+    # result = items.text
+    for i in items:
+        title = i.xpath('title')[0].text
+        link = i.xpath('link')[0].text
+        categorias = []
+        for j in i.xpath('category'):
+            categorias.append(j.text)
+        
+        result += "<div class='col-xs-6 col-sm-4 col-md-3 panel panel-default'><div class='panel-body'>"
+        result += '<h4>' + title + '</h4>'
+        result += '<a href="' + link + '" target="_blank">link</a>'
+        for k in categorias:
+            result += "<ul>"
+            result += '<li>' + k + '</li>'
+            result += "</ul>"
+        result += "</div></div>"
+        
+        unItem = {"titulo":title,"link":link,"categorias":categorias}
+        noticias_tb.insert(unItem)
+        
+    
+    context = {
+        'nombre_url':NOMBRE_URL,
+        'url':BASE_URL,
+        'form':result,
+    }
+    return render(request, 'crawler.html', context)
