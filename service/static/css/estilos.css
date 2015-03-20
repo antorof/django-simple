@@ -65,3 +65,10 @@ ul.errorlist {
   border-color: #ff1103;
   color: #ffffff;
 }
+.label {
+  font-weight: 500;
+}
+.label-gray {
+  background-color: #eee;
+  color: #333
+}

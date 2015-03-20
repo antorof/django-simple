@@ -310,7 +310,7 @@ def crawler (request):
                 elif str.lower(unidecode(categoria)) in categorias_clean[k]:
                     result += "<span class='label label-primary'>" + categorias[k] + "</span><br/>"
                 else:
-                    result += "<span class='label label-info'>" + categorias[k] + "</span><br/>"
+                    result += "<span class='label label-gray'>" + categorias[k] + "</span><br/>"
             result += "</div></div></div>"
         
         context = {
