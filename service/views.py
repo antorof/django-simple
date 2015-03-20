@@ -293,8 +293,7 @@ def crawler (request):
     # items = tree.xpath('//item/title | //item/link | //item/category')
     items = tree.xpath('//item')
     
-    print (">" + str(len(items)))
-    # result = items.text
+    # print (">" + str(len(items)))
     for i in items:
         title = i.xpath('title')[0].text
         link = i.xpath('link')[0].text
@@ -302,14 +301,13 @@ def crawler (request):
         for j in i.xpath('category'):
             categorias.append(j.text)
         
-        result += "<div class='col-xs-6 col-sm-4 col-md-3 panel panel-default'><div class='panel-body'>"
+        result += "<div class='col-xs-6 col-sm-4 col-md-3'><div class='panel panel-default'><div class='panel-body'>"
         result += '<h4>' + title + '</h4>'
-        result += '<a href="' + link + '" target="_blank">link</a>'
+        result += '<a href="' + link + '" target="_blank">Enlace</a>'
+        result += "<br/>"
         for k in categorias:
-            result += "<ul>"
-            result += '<li>' + k + '</li>'
-            result += "</ul>"
-        result += "</div></div>"
+            result += "<span class='label label-info'>" + k + "</span><br/>"
+        result += "</div></div></div>"
         
         unItem = {"titulo":title,"link":link,"categorias":categorias}
         noticias_tb.insert(unItem)
