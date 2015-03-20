@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.core.validators import validate_slug, RegexValidator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from lxml import etree
 
 class loginForm(forms.Form):
     username = forms.CharField(
@@ -201,6 +202,45 @@ def registro (request):
         return render(request, 'registro.html', context)
 
 def geoETSIIT (request):
+    GEOCODE_BASE_URL = 'http://maps.google.com/maps/api/geocode/xml'
+    # URL_ETSIIT = '?address=Periodista Daniel Saucedo Aranda 18014 GRANADA Spain'
+    URL_ETSIIT = '?address=ETSIIT GRANADA Spain'
+    result = ""
+    
+    tree = etree.parse(GEOCODE_BASE_URL + URL_ETSIIT)
+    
+    result += "<ul>"
+    items = tree.xpath('//address_component')
+    
+    for i in items:
+        lname = i.xpath('long_name')
+        type = i.xpath('type')
+        
+        # Solo aparece un type y un solo long_name, por eso el '[0]'
+        if type[0].text == 'locality' :
+            print (">" + lname[0].text)
+            result += "<li>Localidad: <strong>" + lname[0].text +"</strong></li>"
+        
+        elif type[0].text == 'administrative_area_level_4' :
+            print (">" + lname[0].text)
+            result += "<li>Municipio: <strong>" + lname[0].text +"</strong></li>"
+        
+        elif type[0].text == 'administrative_area_level_3' :
+            print (">" + lname[0].text)
+            result += "<li>Comarca: <strong>" + lname[0].text +"</strong></li>"
+        
+        elif type[0].text == 'administrative_area_level_2' :
+            print (">" + lname[0].text)
+            result += "<li>Provincia: <strong>" + lname[0].text +"</strong></li>"
+        
+        elif type[0].text == 'administrative_area_level_1' :
+            print (">" + lname[0].text)
+            result += "<li>Comunidad: <strong>" + lname[0].text +"</strong></li>"
+    
+    result += "</ul>"
+    
     context = {
+        'url':GEOCODE_BASE_URL + URL_ETSIIT,
+        'form':result,
     }
     return render(request, 'geo-etsiit.html', context)
