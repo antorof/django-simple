@@ -374,8 +374,6 @@ def updatebd (request):
         if noticias_tb.find(unItem).count() == 0:
             nuevasNoticias+=1
             noticias_tb.insert(unItem)
-        else:
-            print("WAKA")
     
     return JsonResponse( {'numItems':str(noticias_tb.count()),'nuevosItems':str(nuevasNoticias)} )
     
