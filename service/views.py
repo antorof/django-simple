@@ -289,33 +289,37 @@ def crawler (request):
     if request.method == 'POST':
         categoria = request.POST.get("keyword", "")
         
-        noticias = noticias_tb.find({"categorias_clean":{ "$regex": unidecode(categoria), "$options":"i" }})
-        
-        # print("post:"+categoria)
-        # print(unidecode(categoria))
-        # print("count:"+str(noticias.count()))
-        
-        if noticias.count()!=0:
-            for i in noticias:
-                title = i["titulo"]
-                link = i["link"]
-                categorias = i["categorias"]
-                categorias_clean = i["categorias_clean"]
-                
-                result += "<div class='col-xs-6 col-sm-4 col-md-3'><div class='panel panel-default'><div class='panel-body'>"
-                result += '<h4>' + title + '</h4>'
-                result += '<p><a href="' + link + '" target="_blank">Enlace</a></p>'
-                
-                for k in range(len(categorias)):
-                    if str.lower(unidecode(categoria)) == categorias_clean[k]:
-                        result += "<span class='label label-success'>" + categorias[k] + "</span><br/>"
-                    elif str.lower(unidecode(categoria)) in categorias_clean[k]:
-                        result += "<span class='label label-primary'>" + categorias[k] + "</span><br/>"
-                    else:
-                        result += "<span class='label label-gray'>" + categorias[k] + "</span><br/>"
-                result += "</div></div></div>"
+        if categoria.replace(" ","") != "":
+            noticias = noticias_tb.find({"categorias_clean":{ "$regex": unidecode(categoria), "$options":"i" }})
+            
+            # print("post:"+categoria)
+            # print(unidecode(categoria))
+            # print("count:"+str(noticias.count()))
+            
+            if noticias.count()!=0:
+                result += "<p class='text-mute'>"+str(noticias.count())+" resultados encontrados.</p>"
+                for i in noticias:
+                    title = i["titulo"]
+                    link = i["link"]
+                    categorias = i["categorias"]
+                    categorias_clean = i["categorias_clean"]
+                    
+                    result += "<div class='col-xs-6 col-sm-4 col-md-3'><div class='panel panel-default'><div class='panel-body'>"
+                    result += '<h4>' + title + '</h4>'
+                    result += '<p><a href="' + link + '" target="_blank">Enlace</a></p>'
+                    
+                    for k in range(len(categorias)):
+                        if str.lower(unidecode(categoria)) == categorias_clean[k]:
+                            result += "<span class='label label-success'>" + categorias[k] + "</span><br/>"
+                        elif str.lower(unidecode(categoria)) in categorias_clean[k]:
+                            result += "<span class='label label-primary'>" + categorias[k] + "</span><br/>"
+                        else:
+                            result += "<span class='label label-gray'>" + categorias[k] + "</span><br/>"
+                    result += "</div></div></div>"
+            else:
+                result += "<p class='text-warning'>No se han encontrado resultados.</p>"
         else:
-            result += "<p class='text-muted'>No se han encontrado resultados.</p>"
+            result += "<p class='text-danger'>Debe introducir un t&eacute;rmino para la b&uacute;squeda.</p>"
         
         context = {
             'nombre':NOMBRE,
@@ -344,10 +348,10 @@ def crawler (request):
         return render(request, 'crawler.html', context)
 
 def updatebd (request):
+    nuevasNoticias = 0
     client = MongoClient()
     db = client.db_ssbw
     noticias_tb = db.noticias
-    noticias_tb.remove()
     
     URL_ELPAIS = 'http://servicios.elpais.com/rss/'
     BASE_URL = 'http://ep00.epimg.net/rss/tecnologia/portada.xml'
@@ -356,7 +360,6 @@ def updatebd (request):
     
     items = tree.xpath('//item')
     
-    # print (">" + str(len(items)))
     for i in items:
         title = i.xpath('title')[0].text
         link = i.xpath('link')[0].text
@@ -367,7 +370,12 @@ def updatebd (request):
             categorias_clean.append(str.lower(unidecode(j.text)))
         
         unItem = {"titulo":title,"link":link,"categorias":categorias,"categorias_clean":categorias_clean}
-        noticias_tb.insert(unItem)
+        
+        if noticias_tb.find(unItem).count() == 0:
+            nuevasNoticias+=1
+            noticias_tb.insert(unItem)
+        else:
+            print("WAKA")
     
-    return JsonResponse( {'numItems':str(len(items))} )
+    return JsonResponse( {'numItems':str(noticias_tb.count()),'nuevosItems':str(nuevasNoticias)} )
     

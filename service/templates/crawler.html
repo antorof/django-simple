@@ -36,7 +36,9 @@
             $.post( "{% url 'update-bd' %}", {csrfmiddlewaretoken: '{{ csrf_token }}'}, function(data) {
               console.log( data );
               
-              $('#miModal .modal-body p').html("La base de datos contiene ahora un total de <strong>"+data.numItems+"</strong> noticias.");
+              var texto = "La base de datos contiene ahora un total de <strong>"+data.numItems+"</strong> noticias. <br/>"
+              texto += "Se han incluido <strong>"+data.nuevosItems+"</strong> nuevas noticias.";
+              $('#miModal .modal-body p').html(texto);
             })
               .fail(function() {
                 $('#miModal .modal-body p').html("Ha habido un problema durante la actualizaci&oacute;n.");
