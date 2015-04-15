@@ -31,6 +31,7 @@
     $(function(){
         $( "#btnActualizar" ).click(function() {
             $( "#btnActualizar span" ).addClass('animated');
+            $( "#btnActualizar" ).addClass('disabled');
             $('#miModal .modal-body p').removeClass('text-danger');
             
             $.post( "{% url 'update-bd' %}", {csrfmiddlewaretoken: '{{ csrf_token }}'}, function(data) {
@@ -47,6 +48,7 @@
               .always(function() {
                 $('#miModal').modal();
                 $( "#btnActualizar span" ).removeClass('animated');
+                $( "#btnActualizar" ).removeClass('disabled');
               });
         });
     });
