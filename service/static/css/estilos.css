@@ -72,3 +72,21 @@ ul.errorlist {
   background-color: #eee;
   color: #333
 }
+
+.heading h2 {
+  float:left;
+}
+.heading .btn {
+  float:right;
+  margin-top:24px;
+  margin-bottom: 10px;
+}
+.modal-dialog {
+  z-index:1050;
+}
+
+@media (max-width: 425px) {
+  .col-xs-6 {
+    width:100%;
+  }
+}

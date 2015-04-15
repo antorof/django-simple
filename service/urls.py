@@ -23,6 +23,7 @@ urlpatterns = patterns ('',
     url(r'^elpais/$', views.elpais, name='elpais'),
     
     url(r'^crawler/$', views.crawler, name='crawler'),
+    url(r'^update-bd/$', views.updatebd, name='update-bd'),
     
     
 )
