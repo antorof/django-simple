@@ -6,3 +6,6 @@
 
 ## Práctica 4
 -  Crawler que analiza las rss: http://localhost:8000/service/crawler/
+
+## Práctica 5
+-  Misma URL que la práctica 4, solo que la funcionalidad ha sido extendida: http://localhost:8000/service/crawler/
